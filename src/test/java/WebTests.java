@@ -132,4 +132,32 @@ public class WebTests {
 
         driver.quit();
     }
+
+    @Test
+    public void testSubtitleSubmitNewLanguage() {
+
+        String chromeDriver = "webdriver.chrome.driver";
+        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
+        String url = "http://www.99-bottles-of-beer.net/";
+
+        String expectedResult = "Submit New Language";
+
+        System.setProperty(chromeDriver, driverPath);
+        WebDriver driver = new ChromeDriver();
+
+        driver.get(url);
+        driver.findElement(By.xpath("//li/a[@href='/submitnewlanguage.html']")).click();
+
+        String actualResult
+                = driver.findElement(
+                        By.xpath(
+                                "//li/a[@href='./submitnewlanguage.html']")
+                )
+                .getText();
+
+        Assert.assertEquals(actualResult, expectedResult);
+
+        driver.quit();
+    }
+
 }
