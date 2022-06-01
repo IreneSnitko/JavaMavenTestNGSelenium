@@ -1,31 +1,35 @@
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WebTests {
+
+    private static final String BASE_URL = "http://www.99-bottles-of-beer.net/";
+    private static final String CHROME_DRIVER = "webdriver.chrome.driver";
+    private static final String DRIVER_PATH = "C:\\ChromeDriver\\chromedriver.exe";
 
     @Test
     public void testBrowseLanguagesSubmenuJ() {
 
-        String chromeDriver = "webdriver.chrome.driver";
-        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
-        String url = "http://www.99-bottles-of-beer.net/";
-
         String expectedResult
                 = "All languages starting with the letter J are shown, sorted by Language.";
 
-        System.setProperty(chromeDriver, driverPath);
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
 
-        driver.get(url);
+        driver.get(BASE_URL);
         driver.findElement(By.xpath("//li/a[@href='/abc.html']")).click();
-        driver.findElement(By.xpath("//li/a[@href='j.html']")).click();
+        driver.findElement(By.linkText("J")).click();
 
         String actualResult
                 = driver.findElement(
-                        By.xpath("//div[@id='main']/p")
+                        By.xpath("//table[@id='category']/preceding-sibling::p")
                 )
                 .getText();
 
@@ -37,72 +41,68 @@ public class WebTests {
     @Test
     public void testMenuBrowseLanguagesTableHeaders() {
 
-        String chromeDriver = "webdriver.chrome.driver";
-        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
-        String url = "http://www.99-bottles-of-beer.net/";
-
         String expectedResult1 = "Language";
         String expectedResult2 = "Author";
         String expectedResult3 = "Date";
         String expectedResult4 = "Comments";
         String expectedResult5 = "Rate";
 
-        System.setProperty(chromeDriver, driverPath);
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
 
-        driver.get(url);
+        driver.get(BASE_URL);
         driver.findElement(By.xpath("//li/a[@href='/abc.html']")).click();
 
-        String[] tableHeaders = new String[5];
+        List<WebElement> ths
+                = driver.findElements(By.xpath("//table[@id='category']/tbody/tr/th"));
 
-        for (int i = 0; i < tableHeaders.length; i++) {
-            int ind = i + 1;
-            tableHeaders[i] = driver
-                    .findElement(
-                            By.xpath("//table[@id='category']/tbody/tr/th[" + ind + "]")
-                    )
-                    .getText();
+        List<String> actualResult = new ArrayList<>();
+        for (WebElement th : ths) {
+            actualResult.add(th.getText());
         }
 
-        String actualResult1 = tableHeaders[0];
-        String actualResult2 = tableHeaders[1];
-        String actualResult3 = tableHeaders[2];
-        String actualResult4 = tableHeaders[3];
-        String actualResult5 = tableHeaders[4];
-
-        Assert.assertEquals(actualResult1, expectedResult1);
-        Assert.assertEquals(actualResult2, expectedResult2);
-        Assert.assertEquals(actualResult3, expectedResult3);
-        Assert.assertEquals(actualResult4, expectedResult4);
-        Assert.assertEquals(actualResult5, expectedResult5);
+        Assert.assertEquals(actualResult.size(), 5);
+        Assert.assertEquals(actualResult.get(0),expectedResult1);
+        Assert.assertEquals(actualResult.get(1),expectedResult2);
+        Assert.assertEquals(actualResult.get(2),expectedResult3);
+        Assert.assertEquals(actualResult.get(3),expectedResult4);
+        Assert.assertEquals(actualResult.get(4),expectedResult5);
 
         driver.quit();
     }
 
     @Test
-    public void testBrowseLanguagesSubmenuMLastProgramIsLangMySQL() {
-
-        String chromeDriver = "webdriver.chrome.driver";
-        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
-        String url = "http://www.99-bottles-of-beer.net/";
+    public void testBrowseLanguagesSubmenuMLastLanguageIsLangMySQL() {
 
         String expectedResult = "MySQL";
 
-        System.setProperty(chromeDriver, driverPath);
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
 
-        driver.get(url);
+        driver.get(BASE_URL);
         driver.findElement(By.xpath("//li/a[@href='/abc.html']")).click();
-        driver.findElement(By.xpath("//li/a[@href='m.html']")).click();
+        driver.findElement(By.linkText("M")).click();
 
-        String actualResult
-                = driver.findElement(
-                        By.xpath(
-                                "//td/a[@href='language-mysql-1252.html']")
-                )
-                .getText();
+        List<WebElement> trs
+                = driver.findElements(By.xpath("//table[@id='category']/tbody/tr"));
+        List<String> languages = new ArrayList<>();
 
-        Assert.assertEquals(actualResult, expectedResult);
+        String trContainsMySQL ="";
+
+        for (WebElement tr : trs) {
+            languages.add(tr.getText());
+            if (languages.get(languages.size() - 1).contains(expectedResult)) {
+                trContainsMySQL = languages.get(languages.size() - 1).toString();
+            }
+        }
+
+        String[] containsMySQL = new String[]{};
+        containsMySQL = trContainsMySQL.split(" ");
+        String actualResult = containsMySQL[0].toString();
+
+        Assert.assertTrue(!containsMySQL.toString().isEmpty());
+        Assert.assertEquals(containsMySQL.length, 5);
+        Assert.assertEquals(expectedResult, actualResult);
 
         driver.quit();
     }
@@ -110,16 +110,12 @@ public class WebTests {
     @Test
     public void testHeadOnBaseUrl() {
 
-        String chromeDriver = "webdriver.chrome.driver";
-        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
-        String url = "http://www.99-bottles-of-beer.net/";
-
         String expectedResult = "99 Bottles of Beer";
 
-        System.setProperty(chromeDriver, driverPath);
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
 
-        driver.get(url);
+        driver.get(BASE_URL);
 
         String actualResult
                 = driver.findElement(
@@ -136,16 +132,12 @@ public class WebTests {
     @Test
     public void testSubmitNewLanguageInMenuOnBaseUrl() {
 
-        String chromeDriver = "webdriver.chrome.driver";
-        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
-        String url = "http://www.99-bottles-of-beer.net/";
-
         String expectedResult = "Submit new Language".toUpperCase();
 
-        System.setProperty(chromeDriver, driverPath);
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
 
-        driver.get(url);
+        driver.get(BASE_URL);
 
         String actualResult
                 = driver.findElement(
@@ -162,16 +154,12 @@ public class WebTests {
     @Test
     public void testSubtitleSubmitNewLanguage() {
 
-        String chromeDriver = "webdriver.chrome.driver";
-        String driverPath = "C:\\ChromeDriver\\chromedriver.exe";
-        String url = "http://www.99-bottles-of-beer.net/";
-
         String expectedResult = "Submit New Language";
 
-        System.setProperty(chromeDriver, driverPath);
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
         WebDriver driver = new ChromeDriver();
 
-        driver.get(url);
+        driver.get(BASE_URL);
         driver.findElement(By.xpath("//li/a[@href='/submitnewlanguage.html']")).click();
 
         String actualResult
@@ -182,6 +170,83 @@ public class WebTests {
                 .getText();
 
         Assert.assertEquals(actualResult, expectedResult);
+
+        driver.quit();
+    }
+
+    @Test
+    public void testMathematicaLanguageInformation() {
+
+        String languageExpected = "Mathematica";
+        String authorExpected = "Brenton Bostick";
+        String dataExpected = "03/16/06";
+        String commentsExpected = "1";
+
+        StringBuilder expectedResult = new StringBuilder();
+        expectedResult
+                .append(languageExpected)
+                .append(" ")
+                .append(authorExpected)
+                .append(" ")
+                .append(dataExpected)
+                .append(" ")
+                .append(commentsExpected);
+
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
+        WebDriver driver = new ChromeDriver();
+
+        driver.get(BASE_URL);
+        driver.findElement(By.xpath("//li/a[@href='/abc.html']")).click();
+        driver.findElement(By.linkText("M")).click();
+
+        List<WebElement> trs
+                = driver.findElements(
+                        By.xpath(
+                                "//table[@id='category']/tbody/tr")
+        );
+
+        List<String> actualResult = new ArrayList<>();
+        for (WebElement tr : trs) {
+            if (tr.getText().contains(languageExpected)) {
+                actualResult.add(tr.getText());
+            }
+        }
+
+        Assert.assertTrue(!actualResult.get(0).isEmpty());
+        Assert.assertEquals(actualResult.size(), 1);
+        Assert.assertEquals(actualResult.get(0), expectedResult.toString());
+
+        driver.quit();
+    }
+
+    @Test
+    public void testNamesNumbersOfLanguages() {
+
+        int expectedResult = 10;
+
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
+        WebDriver driver = new ChromeDriver();
+
+        driver.get(BASE_URL);
+        driver.findElement(By.xpath("//li/a[@href='/abc.html']")).click();
+        driver.findElement(By.linkText("0-9")).click();
+
+        List<WebElement> trs
+                = driver.findElements(
+                        By.xpath(
+                                "//table[@id='category']/tbody/tr")
+        );
+        List languagesNamesNumbers = new ArrayList<>();
+
+        for (WebElement tr : trs) {
+            languagesNamesNumbers.add(tr.getText());
+        }
+        languagesNamesNumbers.remove(0);
+
+        int actualResult = languagesNamesNumbers.size();
+
+        Assert.assertFalse(languagesNamesNumbers.isEmpty());
+        Assert.assertEquals(expectedResult, actualResult);
 
         driver.quit();
     }
