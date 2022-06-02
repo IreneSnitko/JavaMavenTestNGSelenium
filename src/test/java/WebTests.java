@@ -360,7 +360,8 @@ public class WebTests {
 
         int actualAllTop20 = 0;
         int actualEsotericTop10 = 0;
-        int actualHitsTop6 = 0;int actualRealTop0 = 0;
+        int actualHitsTop6 = 0;
+        int actualRealTop0 = 0;
 
         Assert.assertTrue(!topRated.get(0).isEmpty());
         Assert.assertEquals(
