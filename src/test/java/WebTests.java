@@ -6,7 +6,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WebTests {
@@ -35,6 +34,124 @@ public class WebTests {
         }
 
         return actRes;
+    }
+
+    static String generateName(int lengthName) {
+
+        String letters = "abcdefghijklmnopqrstuvwxyz -'ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder name = new StringBuilder();
+
+        for (int i = 0; i < lengthName; i++) {
+            int index = (int) (Math.random() * letters.length());
+            name.append(letters.charAt(index));
+        }
+
+        return name.toString();
+    }
+
+    static String generateLocation(int lengthLocation) {
+
+        String letters = "abcdefghijklmnopqrstuvwxyz -'ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder location = new StringBuilder();
+
+        for (int i = 0; i < lengthLocation; i++) {
+            int index = (int) (Math.random() * letters.length());
+            location.append(letters.charAt(index));
+
+        }
+
+        return location.toString();
+    }
+
+    static StringBuilder siteName(int lengthSiteName) {
+
+        StringBuilder siteName = new StringBuilder();
+        String letters = "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        for (int i = 0; i < lengthSiteName; i++) {
+            int index = (int) (Math.random() * letters.length());
+            siteName.append(letters.charAt(index));
+        }
+
+        return siteName;
+    }
+
+    static StringBuilder domain(int lengthDomain) {
+
+        StringBuilder domain = new StringBuilder();
+        String letters = "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        letters.replace("-", "");
+
+        for (int i = 0; i < lengthDomain; i++) {
+            int index = (int) (Math.random() * letters.length());
+            domain.append(letters.charAt(index));
+        }
+
+        return domain;
+
+    }
+
+    static String generateEmail(int lengthLocalPart, int lengthSiteName, int lengthDomain) {
+
+        String letters = "abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String dot = ".";
+
+        StringBuilder email = new StringBuilder();
+
+        for (int i = 0; i < lengthLocalPart; i++) {
+            int index = (int) (Math.random() * letters.length());
+            email.append(letters.charAt(index));
+        }
+
+        email
+                .append("@")
+                .append(siteName(lengthSiteName))
+                .append(dot)
+                .append(domain(lengthDomain));
+
+        return email.toString().toLowerCase();
+    }
+
+    static String generateHomepageAddress(int lengthSiteName, int lengthDomain) {
+
+        final String W3 = "www";
+        String dot = ".";
+
+        String homepage
+                = W3
+                .concat(dot)
+                .concat(siteName(lengthSiteName).toString())
+                .concat(dot)
+                .concat(domain(lengthDomain).toString())
+                .toLowerCase();
+
+        return homepage;
+    }
+
+    static String generateMessage(int lengthMessage) {
+
+        String letters
+                = "abcdefghijklmnopqrstuvwxyz .,-'?:;ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        StringBuilder message = new StringBuilder();
+
+        for (int i = 0; i < lengthMessage; i++) {
+            int index = (int) (Math.random() * letters.length());
+            message.append(letters.charAt(index));
+        }
+
+        return message.toString();
+    }
+
+    static String generateThreeDigitCode(int start, int end) {
+
+        int code3digit = 0;
+
+        if (start >= 0 && end >= 0) {
+            code3digit = (int) (Math.random() * end);
+        }
+
+        return String.valueOf(code3digit);
     }
 
     @Test
@@ -383,6 +500,103 @@ public class WebTests {
                 findActualResult(topReal, actualRealTop0, RealTop0),
                 expectedRealTop0
         );
+
+        driver.quit();
+    }
+
+    @Test
+    public void testErrorSignGuestbookRandomGeneratedThreeDigitNumber() {
+
+        String expectedResult = "Error: Error: Invalid security code.";
+
+        System.setProperty(CHROME_DRIVER, DRIVER_PATH);
+        WebDriver driver = new ChromeDriver();
+
+        driver.get(BASE_URL);
+        driver.findElement(
+                        By.xpath(
+                                "//li/a[@href='/guestbookv2.html']")
+                )
+                .click();
+
+        driver.findElement(
+                        By.linkText(
+                                "Sign Guestbook")
+                )
+                .click();
+
+        WebElement nameField
+                = driver
+                .findElement(
+                        By.xpath(
+                                "//p/input[@name='name']")
+                );
+
+        nameField.sendKeys(
+                generateName(50).toString()
+        );
+
+        WebElement locationField
+                = driver
+                .findElement(
+                        By.xpath(
+                                "//p/input[@name='location']")
+                );
+
+        locationField.sendKeys(
+                generateLocation(85)
+        );
+
+        WebElement emailField
+                = driver
+                .findElement(
+                        By.xpath("//p/input[@name='email']")
+                );
+
+        emailField.sendKeys(
+                generateEmail(13, 20, 3)
+        );
+
+        WebElement homepageField
+                = driver
+                .findElement(
+                        By.xpath("//p/input[@name='homepage']")
+                );
+
+        homepageField.sendKeys(
+                generateHomepageAddress(20, 3)
+        );
+
+        WebElement message
+                = driver
+                .findElement(
+                        By.xpath("//p/textarea[@name='comment']")
+                );
+
+        message.sendKeys(
+                generateMessage(256)
+        );
+
+        WebElement securityCode
+                = driver.findElement(
+                By.xpath("//p/input[@name='captcha']")
+        );
+
+        securityCode.sendKeys(generateThreeDigitCode(0, 999));
+
+        driver.findElement(
+                        By.xpath(
+                                "//p/input[@name='submit']")
+                )
+                .click();
+
+        WebElement actualResult
+                = driver.findElement(
+                By.xpath(
+                        "//div[@id='main']/p")
+        );
+
+        Assert.assertEquals(actualResult.getText(), expectedResult);
 
         driver.quit();
     }
